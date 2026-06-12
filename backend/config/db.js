@@ -10,7 +10,7 @@ const connectDB = async () => {
 
   try {
     const conn = await mongoose.connect(uri, {
-      // Database name comes from the URI (e.g. .../sslms)
+      // Database name comes from the URI (e.g. .../skillbridge)
     });
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);

@@ -36,7 +36,7 @@ const Register = () => {
       <div className="auth-card card">
         <div className="auth-header">
           <h1>Create Account</h1>
-          <p>Join SSLMS as a student or trainer</p>
+          <p>Join SKILL BRIDGE as a student or trainer</p>
         </div>
         {error && <div className="alert alert-error">{error}</div>}
         <form onSubmit={handleSubmit}>
