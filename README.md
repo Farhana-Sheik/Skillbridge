@@ -1,4 +1,4 @@
-# Smart Student Learning & Placement Management System (SSLMS)
+gi# Smart Student Learning & Placement Management System (SSLMS)
 
 A full-stack MERN web application for managing student learning, course tracking, and placement activities in a training institute.
 
@@ -43,6 +43,11 @@ riz2/
 
 - Node.js (v18+)
 - MongoDB — local install **or** free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) cloud database
+
+## Secrets & environment
+
+- Do NOT commit `backend/.env` or any file containing secrets to a public repository. Use your host/CI secret manager or set real environment variables on the server.
+- For the frontend set `VITE_API_URL` at build time (see `frontend/.env.example` or set in your CI). Leaving it empty uses the local dev proxy (`/api`).
 
 ## MongoDB Setup (store all app data)
 

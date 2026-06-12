@@ -3,9 +3,12 @@ const Enrollment = require('../models/Enrollment');
 const { validationResult } = require('express-validator');
 
 const getCourses = async (req, res) => {
-  const filter = req.user.role === 'trainer'
-    ? { trainer: req.user._id }
-    : { isPublished: true };
+  let filter = {};
+  if (req.user.role === 'trainer') {
+    filter = { trainer: req.user._id };
+  } else if (req.user.role === 'student') {
+    filter = { isPublished: true };
+  } // admin role sees all courses
 
   const courses = await Course.find(filter)
     .populate('trainer', 'name email')
@@ -21,7 +24,7 @@ const getCourseById = async (req, res) => {
   }
 
   const courseData = course.toObject();
-  const isOwner = req.user.role === 'trainer' && course.trainer._id.toString() === req.user._id.toString();
+  const isOwner = req.user.role === 'trainer' && course.trainer && course.trainer._id.toString() === req.user._id.toString();
   const isAdmin = req.user.role === 'admin';
 
   let enrollment = null;
@@ -70,7 +73,7 @@ const updateCourse = async (req, res) => {
     return res.status(404).json({ message: 'Course not found' });
   }
 
-  if (req.user.role === 'trainer' && course.trainer.toString() !== req.user._id.toString()) {
+  if (req.user.role === 'trainer' && (!course.trainer || course.trainer.toString() !== req.user._id.toString())) {
     return res.status(403).json({ message: 'Not authorized to update this course' });
   }
 
@@ -93,12 +96,21 @@ const deleteCourse = async (req, res) => {
     return res.status(404).json({ message: 'Course not found' });
   }
 
-  if (req.user.role === 'trainer' && course.trainer.toString() !== req.user._id.toString()) {
+  if (req.user.role === 'trainer' && (!course.trainer || course.trainer.toString() !== req.user._id.toString())) {
     return res.status(403).json({ message: 'Not authorized to delete this course' });
   }
 
+  const Assignment = require('../models/Assignment');
+  const Submission = require('../models/Submission');
+
+  const assignments = await Assignment.find({ course: course._id });
+  const assignmentIds = assignments.map((a) => a._id);
+
+  await Submission.deleteMany({ assignment: { $in: assignmentIds } });
+  await Assignment.deleteMany({ course: course._id });
   await Enrollment.deleteMany({ course: course._id });
   await course.deleteOne();
+
   res.json({ message: 'Course removed' });
 };
 

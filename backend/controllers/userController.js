@@ -50,6 +50,34 @@ const deleteUser = async (req, res) => {
     return res.status(400).json({ message: 'Cannot delete your own account' });
   }
 
+  const Enrollment = require('../models/Enrollment');
+  const Submission = require('../models/Submission');
+  const Course = require('../models/Course');
+  const Assignment = require('../models/Assignment');
+  const Job = require('../models/Job');
+  const JobApplication = require('../models/JobApplication');
+
+  if (user.role === 'student') {
+    await Enrollment.deleteMany({ student: user._id });
+    await Submission.deleteMany({ student: user._id });
+    await JobApplication.deleteMany({ student: user._id });
+  } else if (user.role === 'trainer') {
+    const courses = await Course.find({ trainer: user._id });
+    const courseIds = courses.map((c) => c._id);
+    const assignments = await Assignment.find({ course: { $in: courseIds } });
+    const assignmentIds = assignments.map((a) => a._id);
+
+    await Submission.deleteMany({ assignment: { $in: assignmentIds } });
+    await Assignment.deleteMany({ course: { $in: courseIds } });
+    await Enrollment.deleteMany({ course: { $in: courseIds } });
+    await Course.deleteMany({ trainer: user._id });
+  } else if (user.role === 'admin') {
+    const jobs = await Job.find({ postedBy: user._id });
+    const jobIds = jobs.map((j) => j._id);
+    await JobApplication.deleteMany({ job: { $in: jobIds } });
+    await Job.deleteMany({ postedBy: user._id });
+  }
+
   await user.deleteOne();
   res.json({ message: 'User removed' });
 };

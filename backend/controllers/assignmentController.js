@@ -176,6 +176,10 @@ const evaluateSubmission = async (req, res) => {
     return res.status(404).json({ message: 'Submission not found' });
   }
 
+  if (!submission.assignment) {
+    return res.status(400).json({ message: 'Associated assignment not found for this submission' });
+  }
+
   if (submission.assignment.trainer.toString() !== req.user._id.toString()) {
     return res.status(403).json({ message: 'Not authorized' });
   }

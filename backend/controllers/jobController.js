@@ -190,7 +190,7 @@ const getDashboardStats = async (req, res) => {
       ? Math.round(enrollments.reduce((sum, e) => sum + e.progress, 0) / enrollments.length)
       : 0;
 
-  const evaluatedSubmissions = submissions.filter((s) => s.status === 'evaluated');
+  const evaluatedSubmissions = submissions.filter((s) => s.status === 'evaluated' && s.assignment);
   const avgScore =
     evaluatedSubmissions.length > 0
       ? Math.round(

@@ -1,11 +1,13 @@
+require('express-async-errors');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 connectDB();
 
 const app = express();
@@ -20,8 +22,8 @@ app.use('/api/assignments', require('./routes/assignmentRoutes'));
 app.use('/api/jobs', require('./routes/jobRoutes'));
 
 // Serve React build in production (single-app deploy)
-if (process.env.NODE_ENV === 'production') {
-  const clientPath = path.join(__dirname, '../frontend/dist');
+const clientPath = path.join(__dirname, '../frontend/dist');
+if (process.env.NODE_ENV === 'production' || fs.existsSync(clientPath)) {
   app.use(express.static(clientPath));
   app.get('*', (req, res) => {
     res.sendFile(path.join(clientPath, 'index.html'));

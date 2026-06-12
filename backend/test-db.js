@@ -1,10 +1,11 @@
 /**
  * Test MongoDB connection. Run: node test-db.js
  */
+const path = require('path');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const test = async () => {
   const uri = process.env.MONGODB_URI;
